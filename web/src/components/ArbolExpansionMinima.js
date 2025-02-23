@@ -1,15 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const ArbolExpansionMinima = ({ nodes, links }) => {
-  const [nodePositions, setNodePositions] = useState({
-    A: { x: 100, y: 100 },
-    B: { x: 300, y: 100 },
-    C: { x: 200, y: 200 },
-    D: { x: 400, y: 200 },
-    E: { x: 300, y: 300 },
-  });
+  const [nodePositions, setNodePositions] = useState({});
   const [draggingNode, setDraggingNode] = useState(null);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const initialPositions = {};
+    nodes.forEach((node, index) => {
+      initialPositions[node.id] = {
+        x: 100 + (index % 5) * 100,
+        y: 100 + Math.floor(index / 5) * 100,
+      };
+    });
+    setNodePositions(initialPositions);
+  }, [nodes]);
 
   const handleMouseDown = (event, nodeId) => {
     const { clientX, clientY } = event;
