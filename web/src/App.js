@@ -69,7 +69,7 @@ const App = () => {
         };
       });
 
-      const response = await axios.post('http://127.0.0.1:5000/construir_grafo', {
+      const response = await axios.post('http://100.29.123.169:5000/construir_grafo', {
         nodos,
         aristas: aristas.map((arista) => [arista.source, arista.target, arista.weight]),
         dirigido: true,
@@ -91,7 +91,7 @@ const App = () => {
 
   const graficarArbolMinimo = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:5000/graficar_arbol_minimo');
+      const response = await axios.get('http://100.29.123.169:5000/graficar_arbol_minimo');
       const arbol = response.data.arbol;
       const nodos = [...new Set(arbol.flatMap(edge => [edge[0], edge[1]]))];
       setArbolMinimo({
@@ -108,7 +108,7 @@ const App = () => {
   const graficarRutaCorta = async (origen, destino) => {
     if (origen && destino) {
       try {
-        const response = await axios.post('http://127.0.0.1:5000/graficar_ruta_corta', {
+        const response = await axios.post('http://100.29.123.169:5000/graficar_ruta_corta', {
           origen,
           destino,
         });
@@ -139,7 +139,7 @@ const App = () => {
           throw new Error('Los nodos fuente y sumidero deben existir en el grafo');
         }
 
-        const response = await axios.post('http://127.0.0.1:5000/calcular_flujo_maximo', {
+        const response = await axios.post('http://100.29.123.169:5000/calcular_flujo_maximo', {
           fuente,
           sumidero,
         });
@@ -161,7 +161,7 @@ const App = () => {
   const calcularCostoMinimo = async (origen, destino) => {
     if (origen && destino) {
       try {
-        const response = await axios.post('http://127.0.0.1:5000/calcular_costo_minimo', {
+        const response = await axios.post('http://100.29.123.169:5000/calcular_costo_minimo', {
           origen,
           destino,
         });

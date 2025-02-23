@@ -10,7 +10,7 @@ const CalculoInventarios = () => {
 
   const handleCalcularEOQ = async () => {
     try {
-      const response = await axios.post('http://127.0.0.1:5001/calcular-eoq', {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL_INVENTARIOS}/calcular-eoq`, {
         demanda_anual: demandaAnual,
         costo_orden: costoOrden,
         costo_mantener: costoMantener,
