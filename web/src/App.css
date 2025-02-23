@@ -36,3 +36,17 @@
     transform: rotate(360deg);
   }
 }
+
+.calculo-inventarios-container {
+  margin-top: 4rem;
+  text-align: center;
+}
+
+.calculo-inventarios-paper {
+  padding: 3rem;
+  margin-bottom: 3rem;
+}
+
+.calculo-inventarios-button {
+  margin-top: 2rem;
+}
