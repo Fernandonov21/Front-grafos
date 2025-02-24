@@ -3,7 +3,7 @@ import { Paper, Typography, Box } from '@mui/material';
 import GrafoSVG from './GrafoVisual';
 import ArbolExpansionMinima from './ArbolExpansionMinima';
 
-const GrafoDisplay = ({ grafoData, arbolMinimo, rutaCorta, flujoMaximo, costoMinimo }) => {
+const GrafoDisplay = ({ grafoData, arbolMinimo, rutaCorta, flujoMaximo, costoMinimo, analisisSensibilidadResultados, interpretacion }) => {
   return (
     <>
       <Paper elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
@@ -58,6 +58,40 @@ const GrafoDisplay = ({ grafoData, arbolMinimo, rutaCorta, flujoMaximo, costoMin
           <Typography variant="body1" sx={{ textAlign: 'center' }}>
             {costoMinimo}
           </Typography>
+        </Paper>
+      )}
+      {analisisSensibilidadResultados && (
+        <Paper elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            Análisis de Sensibilidad
+          </Typography>
+          {analisisSensibilidadResultados.map((resultado, index) => (
+            <Box key={index} sx={{ marginTop: 2 }}>
+              {resultado.costo_original !== undefined && (
+                <Typography>
+                  Costo original: {resultado.costo_original}
+                </Typography>
+              )}
+              {resultado.arista && (
+                <Typography>
+                  Arista: {resultado.arista} - Nuevo costo: {resultado.nuevo_costo} - Nuevo costo mínimo: {resultado.nuevo_costo_minimo}
+                </Typography>
+              )}
+              {resultado.error && (
+                <Typography color="error">
+                  Error: {resultado.error}
+                </Typography>
+              )}
+            </Box>
+          ))}
+          {interpretacion && (
+            <Box sx={{ marginTop: 4 }}>
+              <Typography variant="h6">Interpretación</Typography>
+              <Typography variant="body1" sx={{ whiteSpace: 'pre-line' }}>
+                {interpretacion}
+              </Typography>
+            </Box>
+          )}
         </Paper>
       )}
     </>

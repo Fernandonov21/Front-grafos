@@ -14,10 +14,12 @@ const App = () => {
   const [rutaCorta, setRutaCorta] = useState(null);
   const [flujoMaximo, setFlujoMaximo] = useState(null);
   const [costoMinimo, setCostoMinimo] = useState(null);
+  const [analisisSensibilidadResultados, setAnalisisSensibilidadResultados] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [dialogType, setDialogType] = useState('');
   const [inputValue, setInputValue] = useState('');
   const [inputValue2, setInputValue2] = useState('');
+  const [interpretacion, setInterpretacion] = useState('');
 
   const handleOpenDialog = (type) => {
     setDialogType(type);
@@ -52,6 +54,12 @@ const App = () => {
       await calcularFlujoMaximo(inputValue, inputValue2);
     } else if (dialogType === 'costoMinimo') {
       await calcularCostoMinimo(inputValue, inputValue2);
+    } else if (dialogType === 'analisisSensibilidad') {
+      const aristasAModificar = [
+        [inputValue, inputValue2, 10], // Ejemplo: modificar la arista A-B con un nuevo costo de 10
+        // Puedes agregar más aristas aquí
+      ];
+      await realizarAnalisisSensibilidad(inputValue, inputValue2, aristasAModificar);
     }
     handleCloseDialog();
   };
@@ -69,7 +77,7 @@ const App = () => {
         };
       });
 
-      const response = await axios.post('http://100.29.123.169:5000/construir_grafo', {
+      const response = await axios.post('http://127.0.0.1:5000/construir_grafo', {
         nodos,
         aristas: aristas.map((arista) => [arista.source, arista.target, arista.weight]),
         dirigido: true,
@@ -84,14 +92,36 @@ const App = () => {
       setRutaCorta(null);
       setFlujoMaximo(null);
       setCostoMinimo(null);
+      setInterpretacion(response.data.interpretacion);
+
+      // Realizar el análisis de sensibilidad automáticamente
+      await realizarAnalisisSensibilidad(nodos, aristas);
     } catch (error) {
       console.error('Error construyendo el grafo:', error);
     }
   };
 
+  const realizarAnalisisSensibilidad = async (nodos, aristas) => {
+    try {
+      const origen = nodos[0]; // Puedes cambiar esto para seleccionar un origen diferente
+      const destino = nodos[nodos.length - 1]; // Puedes cambiar esto para seleccionar un destino diferente
+      const aristasAModificar = aristas.map((arista) => [arista.source, arista.target, arista.weight + 5]); // Aumentar el costo en 5 para el análisis
+
+      const response = await axios.post('http://127.0.0.1:5000/analisis_sensibilidad_costo_minimo', {
+        origen,
+        destino,
+        aristas_a_modificar: aristasAModificar,
+      });
+      setAnalisisSensibilidadResultados(response.data.resultados);
+    } catch (error) {
+      console.error('Error realizando el análisis de sensibilidad:', error);
+      alert(`Error realizando el análisis de sensibilidad: ${error.response?.data?.error || error.message}`);
+    }
+  };
+
   const graficarArbolMinimo = async () => {
     try {
-      const response = await axios.get('http://100.29.123.169:5000/graficar_arbol_minimo');
+      const response = await axios.get('http://127.0.0.1:5000/graficar_arbol_minimo');
       const arbol = response.data.arbol;
       const nodos = [...new Set(arbol.flatMap(edge => [edge[0], edge[1]]))];
       setArbolMinimo({
@@ -99,6 +129,7 @@ const App = () => {
         links: arbol.map(([source, target, weight]) => ({ source, target, weight: weight.peso }))
       });
       setRutaCorta(null);
+      setAnalisisSensibilidadResultados(null);
     } catch (error) {
       console.error('Error graficando el árbol mínimo:', error);
       alert(`Error graficando el árbol mínimo: ${error.response?.data?.error || error.message}`);
@@ -108,7 +139,7 @@ const App = () => {
   const graficarRutaCorta = async (origen, destino) => {
     if (origen && destino) {
       try {
-        const response = await axios.post('http://100.29.123.169:5000/graficar_ruta_corta', {
+        const response = await axios.post('http://127.0.0.1:5000/graficar_ruta_corta', {
           origen,
           destino,
         });
@@ -125,6 +156,7 @@ const App = () => {
         }
         setRutaCorta(links);
         setArbolMinimo(null);
+        setAnalisisSensibilidadResultados(null);
       } catch (error) {
         console.error('Error graficando la ruta corta:', error);
       }
@@ -139,13 +171,14 @@ const App = () => {
           throw new Error('Los nodos fuente y sumidero deben existir en el grafo');
         }
 
-        const response = await axios.post('http://100.29.123.169:5000/calcular_flujo_maximo', {
+        const response = await axios.post('http://127.0.0.1:5000/calcular_flujo_maximo', {
           fuente,
           sumidero,
         });
         setFlujoMaximo(`El flujo máximo de ${fuente} a ${sumidero} es: ${response.data.flujo_maximo}`);
         setArbolMinimo(null);
         setRutaCorta(null);
+        setAnalisisSensibilidadResultados(null);
       } catch (error) {
         console.error('Error calculando el flujo máximo:', error);
         if (error.response) {
@@ -161,13 +194,14 @@ const App = () => {
   const calcularCostoMinimo = async (origen, destino) => {
     if (origen && destino) {
       try {
-        const response = await axios.post('http://100.29.123.169:5000/calcular_costo_minimo', {
+        const response = await axios.post('http://127.0.0.1:5000/calcular_costo_minimo', {
           origen,
           destino,
         });
         setCostoMinimo(`El costo mínimo de ${origen} a ${destino} es: ${response.data.costo_minimo}`);
         setArbolMinimo(null);
         setRutaCorta(null);
+        setAnalisisSensibilidadResultados(null);
       } catch (error) {
         console.error('Error calculando el costo mínimo:', error);
       }
@@ -203,6 +237,8 @@ const App = () => {
                   rutaCorta={rutaCorta}
                   flujoMaximo={flujoMaximo}
                   costoMinimo={costoMinimo}
+                  analisisSensibilidadResultados={analisisSensibilidadResultados}
+                  interpretacion={interpretacion}
                 />
               </>
             } />
